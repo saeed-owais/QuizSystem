@@ -1,12 +1,15 @@
 ﻿using Common.Entities;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using QuizSystem.Common.Common;
+using QuizSystem.Common.Entities;
 using System.Reflection;
 using System.Security.Claims;
 
 namespace QuizSystem.DAL.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 

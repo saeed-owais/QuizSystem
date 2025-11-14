@@ -9,9 +9,11 @@ namespace QuizSystem.DAL.Data.Configurations
         public void Configure(EntityTypeBuilder<Student> builder)
         {
             builder.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
-
             builder.HasQueryFilter(e => !e.IsDeleted);
 
+            builder.HasOne(s => s.User)
+                .WithOne(u => u.Student)
+                .HasForeignKey<Student>(s => s.UserId);
         }
     }
 }
