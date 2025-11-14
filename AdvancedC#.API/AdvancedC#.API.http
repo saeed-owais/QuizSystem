@@ -1,0 +1,6 @@
+@AdvancedC_.API_HostAddress = http://localhost:5049
+
+GET {{AdvancedC_.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
