@@ -12,7 +12,7 @@ namespace QuizSystem.DAL.Data.Configurations
 
             builder.HasQueryFilter(e => !e.IsDeleted);
 
-            builder.HasKey(sc => new { sc.StudentId, sc.CourseId });
+            builder.HasIndex(sc => new { sc.StudentId, sc.CourseId }).IsUnique();
 
             builder.HasOne(sc => sc.Student)
                 .WithMany(s => s.StudentCourses)

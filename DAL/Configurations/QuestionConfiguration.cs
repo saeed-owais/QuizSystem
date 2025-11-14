@@ -21,6 +21,8 @@ namespace QuizSystem.DAL.Data.Configurations
                 .WithOne(c => c.Question)
                 .HasForeignKey(c => c.QuestionId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Property(e => e.Text).HasMaxLength(250);
         }
     }
 }

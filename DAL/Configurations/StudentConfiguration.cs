@@ -14,6 +14,9 @@ namespace QuizSystem.DAL.Data.Configurations
             builder.HasOne(s => s.User)
                 .WithOne(u => u.Student)
                 .HasForeignKey<Student>(s => s.UserId);
+
+            builder.Property(e => e.FullName).HasMaxLength(100);
+
         }
     }
 }

@@ -1,10 +1,14 @@
 
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using QuizSystem.BLL.Interfaces;
+using QuizSystem.BLL.Services;
 using QuizSystem.Common.Entities;
 using QuizSystem.DAL.Data;
+using QuizSystem.DAL.Repositories;
 using System.Text;
 
 namespace API
@@ -16,12 +20,13 @@ namespace API
             var builder = WebApplication.CreateBuilder(args);
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+            // Add services to the container.
+
             //  DbContext & Repositories
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
             builder.Services.AddHttpContextAccessor();
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             //  Identity
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -48,7 +53,17 @@ namespace API
                 };
             });
 
-            // Add services to the container.
+            // Add BLL Services
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<ICourseService, CourseService>();
+
+            // Add AutoMapper
+            builder.Services.AddAutoMapper(typeof(CourseService).Assembly);
+
+            // Add FluentValidation 
+            builder.Services.AddValidatorsFromAssembly(typeof(CourseService).Assembly);
+
+
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -66,6 +81,7 @@ namespace API
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

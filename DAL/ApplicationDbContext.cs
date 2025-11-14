@@ -35,6 +35,21 @@ namespace QuizSystem.DAL.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+                {
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property(nameof(BaseEntity.CreatedBy)).HasMaxLength(450);
+
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property(nameof(BaseEntity.LastModifiedBy)).HasMaxLength(450);
+
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property(nameof(BaseEntity.DeletedBy)).HasMaxLength(450);
+                }
+            }
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

@@ -16,6 +16,8 @@ namespace QuizSystem.DAL.Data.Configurations
                 .WithMany(c => c.Exams)
                 .HasForeignKey(e => e.CourseId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Property(e => e.Title).HasMaxLength(250);
         }
     }
 }

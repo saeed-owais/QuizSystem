@@ -4,9 +4,9 @@ namespace Common.Entities
 {
     public class StudentExam : BaseEntity
     {
-        public string StudentId { get; set; }
+        public Guid StudentId { get; set; }
         public Student Student { get; set; }
-        public string ExamId { get; set; }
+        public Guid ExamId { get; set; }
         public Exam Exam { get; set; }
         public double? Score { get; set; }
         public DateTime? SubmittedDate { get; set; }

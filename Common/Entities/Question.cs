@@ -7,7 +7,7 @@ namespace Common.Entities
     {
         public string Text { get; set; }
         public QuestionLevel Level { get; set; }
-        public string InstructorId { get; set; }
+        public Guid InstructorId { get; set; }
         public Instructor Instructor { get; set; }
         public ICollection<Choice> Choices { get; set; } = new List<Choice>();
         public ICollection<ExamQuestion> ExamQuestions { get; set; } = new List<ExamQuestion>();

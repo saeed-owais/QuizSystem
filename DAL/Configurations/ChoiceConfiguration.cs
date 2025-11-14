@@ -11,6 +11,12 @@ namespace QuizSystem.DAL.Data.Configurations
             builder.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
 
             builder.HasQueryFilter(e => !e.IsDeleted);
+
+            builder.Property(e => e.Text).HasMaxLength(250);
+
+            //builder.Property(e => e.CreatedBy).HasMaxLength(450);
+            //builder.Property(e => e.LastModifiedBy).HasMaxLength(450);
+            //builder.Property(e => e.DeletedBy).HasMaxLength(450);
         }
     }
 }

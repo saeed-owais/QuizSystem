@@ -12,7 +12,7 @@ namespace QuizSystem.DAL.Data.Configurations
 
             builder.HasQueryFilter(e => !e.IsDeleted);
 
-            builder.HasKey(eq => new { eq.ExamId, eq.QuestionId });
+            builder.HasIndex(eq => new { eq.ExamId, eq.QuestionId }).IsUnique();
 
             builder.HasOne(eq => eq.Exam)
                 .WithMany(e => e.ExamQuestions)
