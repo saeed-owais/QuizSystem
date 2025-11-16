@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using BLL.Dtos.Course;
 using Common.Entities;
-using QuizSystem.BLL.Dtos.Course;
 
 namespace QuizSystem.BLL.Mappings
 {
@@ -12,6 +12,8 @@ namespace QuizSystem.BLL.Mappings
                 .ForMember(dest => dest.InstructorName, opt => opt.MapFrom(src => src.Instructor.FullName));
 
             CreateMap<CreateCourseDto, Course>();
+
+            CreateMap<UpdateCourseDto, Course>();
         }
     }
 }

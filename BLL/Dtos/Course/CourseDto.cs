@@ -1,4 +1,4 @@
-﻿namespace QuizSystem.BLL.Dtos.Course
+﻿namespace BLL.Dtos.Course
 {
     public class CourseDto
     {

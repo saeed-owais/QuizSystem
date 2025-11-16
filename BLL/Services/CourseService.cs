@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using BLL.Dtos.Course;
 using Common.Entities;
-using QuizSystem.BLL.Dtos.Course;
 using QuizSystem.BLL.Interfaces;
 using QuizSystem.Common.Common;
 
@@ -49,6 +49,47 @@ namespace QuizSystem.BLL.Services
             // هنا، الفشل غير متوقع. القائمة الفارغة تعتبر "نجاح"
             var courseDtos = _mapper.Map<IEnumerable<CourseDto>>(courses);
             return Result.Success(courseDtos);
+        }
+
+        public async Task<Result> UpdateCourseAsync(Guid courseId, UpdateCourseDto updateCourseDto, Guid instructorId, CancellationToken cancellationToken = default)
+        {
+            var course = await _unitOfWork.CourseRepository.GetByIdAsync(courseId, cancellationToken);
+
+            if (course == null)
+            {
+                return Result.Fail($"Course with Id '{courseId}' was not found.");
+            }
+
+            if (course.InstructorId != instructorId)
+            {
+                return Result.Fail("You are not authorized to update this course.");
+            }
+
+            _mapper.Map(updateCourseDto, course);
+            _unitOfWork.CourseRepository.Update(course);
+            await _unitOfWork.CompleteAsync(cancellationToken);
+
+            return Result.Success();
+        }
+
+        public async Task<Result> DeleteCourseAsync(Guid courseId, Guid instructorId, CancellationToken cancellationToken = default)
+        {
+            var course = await _unitOfWork.CourseRepository.GetByIdAsync(courseId, cancellationToken);
+
+            if (course == null)
+            {
+                return Result.Fail($"Course with Id '{courseId}' was not found.");
+            }
+
+            if (course.InstructorId != instructorId)
+            {
+                return Result.Fail("You are not authorized to delete this course.");
+            }
+
+            _unitOfWork.CourseRepository.Delete(course);
+            await _unitOfWork.CompleteAsync(cancellationToken);
+
+            return Result.Success();
         }
     }
 }

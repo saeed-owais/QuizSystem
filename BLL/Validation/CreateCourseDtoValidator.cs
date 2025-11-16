@@ -1,5 +1,5 @@
-﻿using FluentValidation;
-using QuizSystem.BLL.Dtos.Course;
+﻿using BLL.Dtos.Course;
+using FluentValidation;
 
 namespace QuizSystem.BLL.Validation
 {
