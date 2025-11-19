@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BLL.Dtos.Course;
 using Common.Entities;
+using QuizSystem.BLL.Dtos.Question;
 
 namespace QuizSystem.BLL.Mappings
 {
@@ -14,6 +15,14 @@ namespace QuizSystem.BLL.Mappings
             CreateMap<CreateCourseDto, Course>();
 
             CreateMap<UpdateCourseDto, Course>();
+
+            CreateMap<CreateChoiceDto, Choice>();
+            CreateMap<Choice, ChoiceDto>();
+
+            CreateMap<CreateQuestionDto, Question>();
+            CreateMap<Question, QuestionDto>();
+
+            CreateMap<UpdateQuestionDto, Question>();
         }
     }
 }

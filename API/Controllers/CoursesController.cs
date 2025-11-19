@@ -3,14 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuizSystem.BLL.Interfaces;
 using QuizSystem.Common.Common;
-using System.Security.Claims;
 
 namespace QuizSystem.API.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
     [Authorize]
-    public class CoursesController : ControllerBase
+    public class CoursesController : ApiClientBaseController
     {
         private readonly ICourseService _courseService;
 
@@ -19,64 +16,42 @@ namespace QuizSystem.API.Controllers
             _courseService = courseService;
         }
 
-        private Guid GetCurrentInstructorId()
-        {
-            var instructorIdClaim = User.FindFirstValue(CustomClaimTypes.InstructorId);
-            return Guid.TryParse(instructorIdClaim, out var id) ? id : Guid.Empty;
-        }
-
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetCourseById(Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetCourseById(Guid id, CancellationToken ct)
         {
-            var result = await _courseService.GetCourseByIdAsync(id, cancellationToken);
+            var result = await _courseService.GetCourseByIdAsync(id, ct);
 
             if (!result.IsSuccess)
             {
-                return NotFound(new ProblemDetails
-                {
-                    Title = "Not Found",
-                    Detail = result.Error,
-                    Status = StatusCodes.Status404NotFound
-                });
+                return HandleErrorResult(result);
             }
 
             return Ok(result.Data);
         }
 
         [HttpGet("MyCourses")]
-        public async Task<IActionResult> GetMyCourses(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetMyCourses(CancellationToken ct)
         {
             var instructorId = GetCurrentInstructorId();
-            if (instructorId == Guid.Empty)
-            {
-                return Unauthorized(new ProblemDetails { Title = "Unauthorized", Detail = "Invalid instructor token." });
-            }
+            if (instructorId == Guid.Empty) return Unauthorized();
 
-            var result = await _courseService.GetCoursesByInstructorAsync(instructorId, cancellationToken);
+            var result = await _courseService.GetCoursesByInstructorAsync(instructorId, ct);
 
             return Ok(result.Data);
         }
 
         [HttpPost]
         [Authorize(Roles = AppRoles.Instructor)]
-        public async Task<IActionResult> CreateCourse([FromBody] CreateCourseDto createCourseDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateCourse([FromBody] CreateCourseDto dto, CancellationToken ct)
         {
             var instructorId = GetCurrentInstructorId();
-            if (instructorId == Guid.Empty)
-            {
-                return Unauthorized(new ProblemDetails { Title = "Unauthorized", Detail = "Invalid instructor token." });
-            }
+            if (instructorId == Guid.Empty) return Unauthorized();
 
-            var result = await _courseService.CreateCourseAsync(createCourseDto, instructorId, cancellationToken);
+            var result = await _courseService.CreateCourseAsync(dto, instructorId, ct);
 
             if (!result.IsSuccess)
             {
-                return BadRequest(new ProblemDetails
-                {
-                    Title = "Bad Request",
-                    Detail = result.Error,
-                    Status = StatusCodes.Status400BadRequest
-                });
+                return HandleErrorResult(result);
             }
 
             return CreatedAtAction(nameof(GetCourseById), new { id = result.Data.Id }, result.Data);
@@ -84,50 +59,33 @@ namespace QuizSystem.API.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = AppRoles.Instructor)]
-        public async Task<IActionResult> UpdateCourse(Guid id, [FromBody] UpdateCourseDto updateDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateCourse(Guid id, [FromBody] UpdateCourseDto dto, CancellationToken ct)
         {
             var instructorId = GetCurrentInstructorId();
-            if (instructorId == Guid.Empty)
-            {
-                return Unauthorized(new ProblemDetails { Title = "Unauthorized" });
-            }
+            if (instructorId == Guid.Empty) return Unauthorized();
 
-            var result = await _courseService.UpdateCourseAsync(id, updateDto, instructorId, cancellationToken);
+            var result = await _courseService.UpdateCourseAsync(id, dto, instructorId, ct);
 
             if (!result.IsSuccess)
             {
-                return NotFound(new ProblemDetails
-                {
-                    Title = "Update Failed",
-                    Detail = result.Error,
-                    Status = StatusCodes.Status404NotFound
-                });
+                return HandleErrorResult(result);
             }
 
             return NoContent();
         }
 
-
         [HttpDelete("{id}")]
         [Authorize(Roles = AppRoles.Instructor)]
-        public async Task<IActionResult> DeleteCourse(Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteCourse(Guid id, CancellationToken ct)
         {
             var instructorId = GetCurrentInstructorId();
-            if (instructorId == Guid.Empty)
-            {
-                return Unauthorized(new ProblemDetails { Title = "Unauthorized" });
-            }
+            if (instructorId == Guid.Empty) return Unauthorized();
 
-            var result = await _courseService.DeleteCourseAsync(id, instructorId, cancellationToken);
+            var result = await _courseService.DeleteCourseAsync(id, instructorId, ct);
 
             if (!result.IsSuccess)
             {
-                return NotFound(new ProblemDetails
-                {
-                    Title = "Delete Failed",
-                    Detail = result.Error,
-                    Status = StatusCodes.Status404NotFound
-                });
+                return HandleErrorResult(result);
             }
 
             return NoContent();

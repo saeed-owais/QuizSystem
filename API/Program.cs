@@ -57,6 +57,7 @@ namespace API
             // Add BLL Services
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ICourseService, CourseService>();
+            builder.Services.AddScoped<IQuestionService, QuestionService>();
 
             // Add AutoMapper
             builder.Services.AddAutoMapper(typeof(CourseService).Assembly);

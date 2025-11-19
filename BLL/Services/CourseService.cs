@@ -25,7 +25,6 @@ namespace QuizSystem.BLL.Services
             await _unitOfWork.CourseRepository.AddAsync(course, cancellationToken);
             await _unitOfWork.CompleteAsync(cancellationToken);
 
-            // سنفترض هنا أن المابينج سيعمل (سنحتاج لتحميل المدرس يدوياً لو أردنا الاسم)
             var courseDto = _mapper.Map<CourseDto>(course);
             return Result.Success(courseDto);
         }
@@ -36,7 +35,7 @@ namespace QuizSystem.BLL.Services
 
             if (course == null)
             {
-                return Result.Fail<CourseDto>($"Course with Id '{courseId}' was not found.");
+                return Result.Fail<CourseDto>($"Course with Id '{courseId}' was not found.", ErrorType.NotFound);
             }
 
             return Result.Success(_mapper.Map<CourseDto>(course));
@@ -46,7 +45,6 @@ namespace QuizSystem.BLL.Services
         {
             var courses = await _unitOfWork.CourseRepository.FindAsync(c => c.InstructorId == instructorId, cancellationToken);
 
-            // هنا، الفشل غير متوقع. القائمة الفارغة تعتبر "نجاح"
             var courseDtos = _mapper.Map<IEnumerable<CourseDto>>(courses);
             return Result.Success(courseDtos);
         }
@@ -57,12 +55,12 @@ namespace QuizSystem.BLL.Services
 
             if (course == null)
             {
-                return Result.Fail($"Course with Id '{courseId}' was not found.");
+                return Result.Fail($"Course with Id '{courseId}' was not found.", ErrorType.NotFound);
             }
 
             if (course.InstructorId != instructorId)
             {
-                return Result.Fail("You are not authorized to update this course.");
+                return Result.Fail("You are not authorized to update this course.", ErrorType.Unauthorized);
             }
 
             _mapper.Map(updateCourseDto, course);
@@ -78,12 +76,12 @@ namespace QuizSystem.BLL.Services
 
             if (course == null)
             {
-                return Result.Fail($"Course with Id '{courseId}' was not found.");
+                return Result.Fail($"Course with Id '{courseId}' was not found.", ErrorType.NotFound);
             }
 
             if (course.InstructorId != instructorId)
             {
-                return Result.Fail("You are not authorized to delete this course.");
+                return Result.Fail("You are not authorized to delete this course.", ErrorType.Unauthorized);
             }
 
             _unitOfWork.CourseRepository.Delete(course);
