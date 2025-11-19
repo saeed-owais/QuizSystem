@@ -4,7 +4,7 @@ namespace QuizSystem.BLL.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
-        IGenericRepository<Course> CourseRepository { get; }
+        ICourseRepository CourseRepository { get; }
         IGenericRepository<Exam> ExamRepository { get; }
         IGenericRepository<Question> QuestionRepository { get; }
         IGenericRepository<Student> StudentRepository { get; }

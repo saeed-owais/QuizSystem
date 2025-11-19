@@ -1,6 +1,6 @@
 ﻿using Common.Entities;
+using DAL.Repositories;
 using QuizSystem.BLL.Interfaces;
-using QuizSystem.Common.Entities;
 using QuizSystem.DAL.Data;
 
 namespace QuizSystem.DAL.Repositories
@@ -9,7 +9,7 @@ namespace QuizSystem.DAL.Repositories
     {
         private readonly ApplicationDbContext _context;
 
-        public IGenericRepository<Course> CourseRepository { get; private set; }
+        public ICourseRepository CourseRepository { get; private set; }
         public IGenericRepository<Exam> ExamRepository { get; private set; }
         public IGenericRepository<Question> QuestionRepository { get; private set; }
         public IGenericRepository<Student> StudentRepository { get; private set; }
@@ -22,7 +22,7 @@ namespace QuizSystem.DAL.Repositories
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
-            CourseRepository = new GenericRepository<Course>(_context);
+            CourseRepository = new CourseRepository(_context);
             ExamRepository = new GenericRepository<Exam>(_context);
             QuestionRepository = new GenericRepository<Question>(_context);
             StudentRepository = new GenericRepository<Student>(_context);

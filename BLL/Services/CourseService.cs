@@ -31,7 +31,8 @@ namespace QuizSystem.BLL.Services
 
         public async Task<Result<CourseDto>> GetCourseByIdAsync(Guid courseId, CancellationToken cancellationToken = default)
         {
-            var course = await _unitOfWork.CourseRepository.GetByIdAsync(courseId, cancellationToken);
+            //var course = await _unitOfWork.CourseRepository.GetByIdAsync(courseId, cancellationToken);
+            var course = await _unitOfWork.CourseRepository.GetCourseWithInstructorAsync(courseId, cancellationToken);
 
             if (course == null)
             {
