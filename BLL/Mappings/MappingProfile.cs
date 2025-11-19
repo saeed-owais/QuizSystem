@@ -4,6 +4,7 @@ using Common.Entities;
 using QuizSystem.BLL.Dtos.Exam;
 using QuizSystem.BLL.Dtos.Question;
 using QuizSystem.BLL.Dtos.Student;
+using QuizSystem.BLL.Dtos.StudentExam;
 
 namespace QuizSystem.BLL.Mappings
 {
@@ -33,6 +34,9 @@ namespace QuizSystem.BLL.Mappings
             CreateMap<StudentCourse, StudentCourseDto>()
                 .ForMember(dest => dest.CourseName, opt => opt.MapFrom(src => src.Course.Name))
                 .ForMember(dest => dest.InstructorName, opt => opt.MapFrom(src => src.Course.Instructor.FullName));
+
+            CreateMap<Choice, StudentExamChoiceDto>();
+            CreateMap<Question, StudentExamQuestionDto>();
         }
     }
 }
