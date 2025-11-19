@@ -156,5 +156,71 @@ namespace QuizSystem.BLL.Services
 
             return Result.Success<IEnumerable<ExamResultReportDto>>(report);
         }
+
+        public async Task<Result<ExamDto>> CreateAutomaticExamAsync(CreateAutomaticExamDto dto, Guid instructorId, CancellationToken ct = default)
+        {
+            // 1. التحقق من ملكية الكورس
+            var course = await _unitOfWork.CourseRepository.GetByIdAsync(dto.CourseId, ct);
+            if (course == null) return Result.Fail<ExamDto>("Course not found.", ErrorType.NotFound);
+            if (course.InstructorId != instructorId) return Result.Fail<ExamDto>("Unauthorized.", ErrorType.Unauthorized);
+
+            var finalQuestionIds = new List<Guid>();
+
+            // 2. معالجة المعايير
+            foreach (var criteria in dto.Criteria)
+            {
+                // أ. جلب كل أسئلة المدرس لهذا المستوى
+                // (ملاحظة: للأداء العالي جداً يفضل جلب IDs فقط، لكن Generic Repo يجلب Entities، مقبول حالياً)
+                var availableQuestions = await _unitOfWork.QuestionRepository.FindAsync(
+                    q => q.InstructorId == instructorId && q.Level == criteria.Level,
+                    ct
+                );
+
+                var availableList = availableQuestions.ToList();
+
+                // ب. التحقق من الوفرة
+                if (availableList.Count < criteria.Count)
+                {
+                    return Result.Fail<ExamDto>(
+                        $"Not enough questions for level '{criteria.Level}'. Requested: {criteria.Count}, Available: {availableList.Count}.",
+                        ErrorType.Validation
+                    );
+                }
+
+                // ج. الاختيار العشوائي (Shuffle and Take)
+                var randomSelection = availableList
+                    .OrderBy(x => Guid.NewGuid()) // خلط عشوائي بسيط
+                    .Take(criteria.Count)
+                    .Select(q => q.Id)
+                    .ToList();
+
+                finalQuestionIds.AddRange(randomSelection);
+            }
+
+            // 3. إنشاء الامتحان
+            var exam = new Exam
+            {
+                Title = dto.Title,
+                CourseId = dto.CourseId,
+                ExamType = dto.ExamType,
+                IsAutomatic = true,
+                NumberOfQuestions = finalQuestionIds.Count
+            };
+
+            await _unitOfWork.ExamRepository.AddAsync(exam, ct);
+
+            // 4. حفظ الروابط (الأسئلة المختارة)
+            foreach (var qId in finalQuestionIds)
+            {
+                var examQuestion = new ExamQuestion { ExamId = exam.Id, QuestionId = qId };
+                await _unitOfWork.ExamQuestionRepository.AddAsync(examQuestion, ct);
+            }
+
+            await _unitOfWork.CompleteAsync(ct);
+
+            // 5. التجهيز للرد
+            exam.Course = course; // للمابينج
+            return Result.Success(_mapper.Map<ExamDto>(exam));
+        }
     }
 }

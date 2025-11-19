@@ -14,5 +14,7 @@ namespace QuizSystem.BLL.Interfaces
         Task<Result> AddQuestionsToExamAsync(Guid examId, List<Guid> questionIds, Guid instructorId, CancellationToken ct = default);
 
         Task<Result<IEnumerable<ExamResultReportDto>>> GetExamResultsAsync(Guid examId, Guid instructorId, CancellationToken ct = default);
+
+        Task<Result<ExamDto>> CreateAutomaticExamAsync(CreateAutomaticExamDto dto, Guid instructorId, CancellationToken ct = default);
     }
 }

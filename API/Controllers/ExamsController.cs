@@ -73,5 +73,18 @@ namespace QuizSystem.API.Controllers
 
             return Ok(result.Data);
         }
+
+        [HttpPost("automatic")]
+        public async Task<IActionResult> CreateAutomaticExam([FromBody] CreateAutomaticExamDto dto, CancellationToken ct)
+        {
+            var instructorId = GetCurrentInstructorId();
+            if (instructorId == Guid.Empty) return Unauthorized();
+
+            var result = await _examService.CreateAutomaticExamAsync(dto, instructorId, ct);
+
+            if (!result.IsSuccess) return HandleErrorResult(result);
+
+            return CreatedAtAction(nameof(GetExamById), new { id = result.Data.Id }, result.Data);
+        }
     }
 }
