@@ -1,4 +1,5 @@
 ﻿using QuizSystem.BLL.Dtos.Exam;
+using QuizSystem.BLL.Dtos.StudentExam;
 using QuizSystem.Common.Common;
 
 namespace QuizSystem.BLL.Interfaces
@@ -11,5 +12,7 @@ namespace QuizSystem.BLL.Interfaces
 
         // إضافة أسئلة يدوياً
         Task<Result> AddQuestionsToExamAsync(Guid examId, List<Guid> questionIds, Guid instructorId, CancellationToken ct = default);
+
+        Task<Result<IEnumerable<ExamResultReportDto>>> GetExamResultsAsync(Guid examId, Guid instructorId, CancellationToken ct = default);
     }
 }

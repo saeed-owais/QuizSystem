@@ -37,6 +37,15 @@ namespace QuizSystem.BLL.Mappings
 
             CreateMap<Choice, StudentExamChoiceDto>();
             CreateMap<Question, StudentExamQuestionDto>();
+
+            // 1. من StudentExam إلى StudentHistoryDto (للطالب)
+            CreateMap<StudentExam, StudentHistoryDto>()
+                .ForMember(dest => dest.ExamTitle, opt => opt.MapFrom(src => src.Exam.Title))
+                .ForMember(dest => dest.CourseName, opt => opt.MapFrom(src => src.Exam.Course.Name));
+
+            // 2. من StudentExam إلى ExamResultReportDto (للمدرس)
+            CreateMap<StudentExam, ExamResultReportDto>()
+                .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src => src.Student.FullName));
         }
     }
 }

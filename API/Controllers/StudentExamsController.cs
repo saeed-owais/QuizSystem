@@ -48,5 +48,16 @@ namespace QuizSystem.API.Controllers
 
             return Ok(result.Data);
         }
+
+        [HttpGet("history")]
+        public async Task<IActionResult> GetMyHistory(CancellationToken ct)
+        {
+            var studentId = GetCurrentStudentId();
+            if (studentId == Guid.Empty) return Unauthorized();
+
+            var result = await _studentExamService.GetStudentExamHistoryAsync(studentId, ct);
+
+            return Ok(result.Data);
+        }
     }
 }

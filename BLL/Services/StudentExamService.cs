@@ -114,5 +114,47 @@ namespace QuizSystem.BLL.Services
                 Score = scorePercentage
             });
         }
+
+        public async Task<Result<IEnumerable<StudentHistoryDto>>> GetStudentExamHistoryAsync(Guid studentId, CancellationToken ct = default)
+        {
+            // هنا سنحتاج لجلب الامتحانات التي أداها الطالب
+            // الأفضل هنا هو استخدام Projection (Select) مباشرة مع DbContext لو أمكن، 
+            // ولكننا ملتزمون بالـ Repo Pattern.
+
+            // سنجلب الـ StudentExams الخاصة بالطالب
+            var history = await _unitOfWork.StudentExamRepository.FindAsync(se => se.StudentId == studentId, ct);
+
+            // مشكلة الأداء: نحتاج CourseName و ExamTitle.
+            // الحل السريع: تحميل الـ ExamIDs ثم جلبهم.
+            var examIds = history.Select(h => h.ExamId).ToList();
+            var exams = await _unitOfWork.ExamRepository.FindAsync(e => examIds.Contains(e.Id), ct);
+
+            // نحتاج أيضاً CourseName (الامتحان مرتبط بكورس)
+            var courseIds = exams.Select(e => e.CourseId).Distinct().ToList();
+            var courses = await _unitOfWork.CourseRepository.FindAsync(c => courseIds.Contains(c.Id), ct);
+
+            // تجميع البيانات (Mapping Manual or AutoMapper after stitching)
+            var resultList = new List<StudentHistoryDto>();
+
+            foreach (var record in history)
+            {
+                var exam = exams.FirstOrDefault(e => e.Id == record.ExamId);
+                var course = courses.FirstOrDefault(c => c.Id == exam?.CourseId);
+
+                if (exam != null)
+                {
+                    resultList.Add(new StudentHistoryDto
+                    {
+                        ExamId = exam.Id,
+                        ExamTitle = exam.Title,
+                        CourseName = course?.Name ?? "Unknown",
+                        Score = record.Score ?? 0,
+                        SubmittedDate = record.SubmittedDate ?? DateTime.UtcNow
+                    });
+                }
+            }
+
+            return Result.Success<IEnumerable<StudentHistoryDto>>(resultList);
+        }
     }
 }

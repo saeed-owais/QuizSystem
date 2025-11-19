@@ -60,5 +60,18 @@ namespace QuizSystem.API.Controllers
 
             return Ok(new { Message = "Questions added successfully." });
         }
+
+        [HttpGet("{id}/results")]
+        public async Task<IActionResult> GetExamResults(Guid id, CancellationToken ct)
+        {
+            var instructorId = GetCurrentInstructorId();
+            if (instructorId == Guid.Empty) return Unauthorized();
+
+            var result = await _examService.GetExamResultsAsync(id, instructorId, ct);
+
+            if (!result.IsSuccess) return HandleErrorResult(result);
+
+            return Ok(result.Data);
+        }
     }
 }

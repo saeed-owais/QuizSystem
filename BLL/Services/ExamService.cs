@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Common.Entities;
 using QuizSystem.BLL.Dtos.Exam;
+using QuizSystem.BLL.Dtos.StudentExam;
 using QuizSystem.BLL.Interfaces;
 using QuizSystem.Common.Common;
 
@@ -120,6 +121,40 @@ namespace QuizSystem.BLL.Services
             await _unitOfWork.CompleteAsync(ct);
 
             return Result.Success();
+        }
+
+        public async Task<Result<IEnumerable<ExamResultReportDto>>> GetExamResultsAsync(Guid examId, Guid instructorId, CancellationToken ct = default)
+        {
+            // 1. التحقق من ملكية الامتحان
+            var exam = await _unitOfWork.ExamRepository.GetByIdAsync(examId, ct);
+            if (exam == null) return Result.Fail<IEnumerable<ExamResultReportDto>>("Exam not found.", ErrorType.NotFound);
+
+            var course = await _unitOfWork.CourseRepository.GetByIdAsync(exam.CourseId, ct);
+            if (course.InstructorId != instructorId)
+                return Result.Fail<IEnumerable<ExamResultReportDto>>("Unauthorized.", ErrorType.Unauthorized);
+
+            // 2. جلب النتائج
+            var results = await _unitOfWork.StudentExamRepository.FindAsync(se => se.ExamId == examId, ct);
+
+            // 3. جلب أسماء الطلاب
+            var studentIds = results.Select(r => r.StudentId).ToList();
+            var students = await _unitOfWork.StudentRepository.FindAsync(s => studentIds.Contains(s.Id), ct);
+
+            // 4. التجميع
+            var report = new List<ExamResultReportDto>();
+            foreach (var res in results)
+            {
+                var student = students.FirstOrDefault(s => s.Id == res.StudentId);
+                report.Add(new ExamResultReportDto
+                {
+                    StudentId = res.StudentId,
+                    StudentName = student?.FullName ?? "Unknown",
+                    Score = res.Score ?? 0,
+                    SubmittedDate = res.SubmittedDate ?? DateTime.UtcNow
+                });
+            }
+
+            return Result.Success<IEnumerable<ExamResultReportDto>>(report);
         }
     }
 }

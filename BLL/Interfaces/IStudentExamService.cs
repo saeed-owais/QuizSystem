@@ -10,5 +10,7 @@ namespace QuizSystem.BLL.Interfaces
 
         // تسليم الامتحان (التصحيح)
         Task<Result<ExamResultDto>> SubmitExamAsync(SubmitExamDto dto, Guid studentId, CancellationToken ct = default);
+
+        Task<Result<IEnumerable<StudentHistoryDto>>> GetStudentExamHistoryAsync(Guid studentId, CancellationToken ct = default);
     }
 }
