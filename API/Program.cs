@@ -60,6 +60,7 @@ namespace API
             builder.Services.AddScoped<IQuestionService, QuestionService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IExamService, ExamService>();
+            builder.Services.AddScoped<IStudentService, StudentService>();
 
             // Add AutoMapper
             builder.Services.AddAutoMapper(typeof(CourseService).Assembly);
